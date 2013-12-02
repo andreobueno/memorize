@@ -1,0 +1,271 @@
+<!-- Memorize Web Game developed by Andre O. Bueno - 11-20-13 
+     contact: andre.obueno@dc.ufscar.br -->
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script src="js/jquery-1.10.2.js"></script>
+
+<script src="js/memorize.js"></script>
+<script type="text/javascript" src="js/jquery.thingbroker.js"></script>
+<link rel="stylesheet" type="text/css" href="style.css">
+
+
+<script>
+$(document).ready(function(){
+	
+	/*$("#thingPlayersName").thing({listen:false});
+	$("#thingSeqs").thing({listen:false});
+	$("#thingNumBlocks").thing({listen:false});
+	$("#thingResult").thing({listen:false});		
+	$("#thingEndGame").thing({listen:false});*/	
+		
+	$("#blocks").hide();
+	$("#countdown").hide();
+	$("#results").hide();
+	$("#champion_div").hide();
+	$("#no_champions_div").hide();
+	$("#div_lvl").hide();
+	
+	$("#thingPlayersName").thing({listen:true, debug:true, container:false,
+		eventCallback:function(json){
+			console.log("received the name = " + json[0].info.name);
+			$("#playerNames").append("<h3 align='center'>"+json[0].info.name+"</h3>");
+			numPlayers++;	
+		}		
+	});	
+	
+	$("#thingSeqs").thing({listen:true, debug:true, container:false,
+		eventCallback:function(json){
+			player = json[0].info.name;
+			playerMap = json[0].info.sequence;
+			if(compareArrays(map, playerMap)){
+				winners[posSucced] = player;
+				posSucced++;
+			}
+			else {
+				losers[posFailed] = player;
+				posFailed++;
+			}
+			numSeqsReceived++;
+			
+			//If all the players have sent their sequences already, it goes to the result screen;
+			if(numSeqsReceived == numPlayers){
+				// We have a winner!!!
+				if(winners.length == 0){
+					$("#countdown").delay(1000).hide();
+					$("#no_champions_div").show();
+
+					setTimeout(function(){				
+						numPlayers = 0;
+						lvl = 1;
+						//console.log("getting here in btn_start_again");
+						
+						var thingEndGame = $.ThingBroker({debug:true});
+						thingEndGame.postEvent("thingEndGame", {"end": true});
+
+						$("#no_champions_div").delay(1000).hide();		
+						$("#players").show();
+					}, 5000);					
+				}
+				
+				else if(winners.length == 1){
+					console.log("CHAMPION!!!");
+					$("#champion_player").append("<h3 align='center'>"+winners[0]+"</h3>");					
+					
+					$("#countdown").delay(1000).hide();
+					$("#champion_div").show();
+
+					setTimeout(function(){				
+						numPlayers = 0;
+						lvl = 1;
+						//console.log("getting here in btn_start_again");
+						
+						var thingEndGame = $.ThingBroker({debug:true});
+						thingEndGame.postEvent("thingEndGame", {"end": true});
+
+						$("#champion_div h3").remove();
+						$("#champion_div").delay(1000).hide();		
+						$("#players").show();
+					}, 5000);
+				}
+				else {
+					for(var i = 0; i < posSucced; i++)
+						$("#players_succed").append("<h3 align='center'>"+winners[i]+"</h3>");
+			
+					for(var i = 0; i < posFailed; i++)
+						$("#players_failed").append("<h3 align='center'>"+losers[i]+"</h3>");					
+					$("#countdown").delay(1000).hide();
+					$("#results").show();
+					
+					setTimeout(function(){
+						next_lvl();
+					}, 3000);
+				}	
+
+				var thingResult = $.ThingBroker({debug:true});
+				thingResult.postEvent("thingResult", {"listOfWinners": winners});
+				
+				winners.clear();
+				losers.clear();
+				numPlayers = posSucced;
+				posSucced = 0;
+				posFailed = 0;				
+			}				
+        }
+    });
+	
+		
+	$(".btn_start_again").click(function(){
+		numPlayers = 0;
+		lvl = 1;
+		console.log("getting here in btn_start_again");
+		
+		var thingEndGame = $.ThingBroker({debug:true});
+		thingEndGame.postEvent("thingEndGame", {"end": true});
+
+		$("#champion_div h3").remove();
+		$("#champion_div").delay(1000).hide();
+		$("#no_champions_div").delay(1000).hide();		
+		$("#players").show();		
+	});
+	
+	
+	$("#btn_start_game").click(function(){
+		if(numPlayers==0){	
+			$("#playerNames").append("<h3 align='center'>You need at least 1 player to start the game.</h3>");
+			setTimeout(function(){
+				$("#playerNames h3").remove();
+			}, 2000);	
+		}			
+		else{
+			$("#players").delay(1000).hide();
+			$("#div_lvl").append("<h2 align='center'>LEVEL "+lvl+"</h2>");
+			$("#div_lvl").show();
+			$("#blocks").show();
+			$("#playerNames h3").remove();
+			
+			time = 0;		
+			setTimeout(function(){
+				prepareLvl();
+			}, 1000);			
+		}
+	});
+	
+});
+
+
+	
+</script> 
+</head>
+ 
+<body>
+
+<div id="thingPlayersName"></div>
+<div id="thingSeqs"></div>
+<div id="thingNumBlocks"></div>
+<div id="thingResult"></div>
+<div id="thingEndGame"></div>
+
+
+<div id="myframe">
+<!--<div id="content" height="80%" width="80%">-->
+	<div id="players">
+		<p align="center"><input type="button" id="btn_start_game" value="Start the game!"/></p>
+		<h2 align="center">Players in this match:</h2>
+		<br />
+		<div id="playerNames"></div>
+	</div>
+
+	<div id="blocks">
+		<div id="div_lvl"></div>
+		<table border="1">
+			<tr>
+				<td id="0x0"></td>
+				<td id="0x1"></td>
+				<td id="0x2"></td>
+				
+			</tr>
+			<tr>
+				<td id="1x0"></td>
+				<td id="1x1"></td>
+				<td id="1x2"></td>
+			</tr>
+			<tr>
+				<td id="2x0"></td>
+				<td id="2x1"></td>
+				<td id="2x2"></td>
+			</tr>
+		</table>
+	</div>
+
+	<div id="countdown">
+		<div id="playersSequence"></div>
+		<br />
+		<br />
+		<br />
+		<h2 align="center">PLAY!!!</h2>
+		<!--<h2 align="center">Remaining Time:</h2>
+		<h2 align="center"><p id="time_left"></p></h2>		-->
+		<br />
+		<br />
+		
+		<br />
+		<br />
+		<br />
+	</div>
+	
+	<div id="results">
+		<h2 align="center">Results:</h2>
+		<div style="width: 50%; float:left">
+			<h3 align="center" style="background-color:silver">Players who have succeeded:</h3>
+			<div id="players_succed"></div>			
+		</div>
+
+		<div style="width: 50%; float:right">
+			<h3 align="center" style="background-color:silver">Players who have failed:</h3>
+			<div id="players_failed"></div>			
+		</div>
+		
+		
+		
+		<div id="next_lvl">
+			<h3 align="center">Next level starting. Be ready!</h3>
+			<!--<h2 align="center"></p></h2>		
+			<input type="button" id="btn_next_lvl" value="Play Next Level"/>-->
+		</div>
+	</div>
+	
+	<div id="champion_div">
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<h2 align="center">And the Winner is:</h2>
+		
+		<div id="champion_player"></div>
+		
+		<br />
+		<br />
+		<h2 align="center">Congratulations!!!</h2>
+	</div>
+	
+	<div id="no_champions_div">
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<h2 align="center">Sorry, nobody won... :(</h2>
+	</div>
+	
+
+</div>	
+<!--</div>-->
+</body>
+</html>
