@@ -1,0 +1,113 @@
+<!-- Memorize Web Game developed by Andre O. Bueno - 11-20-13 
+     contact: andre.obueno@dc.ufscar.br -->
+     
+body
+{
+color: white;
+background-color:black;
+font-family:Courier;
+}
+
+/*#content{
+background-color:white;
+margin-top: 103px;
+max-width: 850px;
+display: block;
+margin:0 auto;
+align: center; 
+padding: 10px 10px 25px 15px;
+position: relative;
+height: 575px;
+width: 855px;
+}*/
+
+#myframe{
+/*background-color:yellow;*/
+/*height: 430px;
+width: 615px;*/
+margin-top: 30px;
+max-width: 100%;
+height: auto;
+}
+
+table
+{ 
+margin-left: auto;
+margin-right: auto;
+}
+
+#next_lvl{
+margin-top: 260px;
+}
+
+#start_again{
+margin-top: 390px;
+}
+
+#start_again_no_winner{
+margin-top: 430px;
+}
+
+#content{
+background-color:white;
+margin-top: 103px;
+max-width: 850px;
+display: block;
+margin:0 auto;
+align: center; 
+padding: 10px 10px 25px 15px;
+position: relative;
+height: 625px;
+width: 855px;
+}
+
+td{
+background-color:#98bf21;
+height:100px;
+width:100px;
+position:relative;
+}
+
+tr{
+background-color:#98bf21;
+height:100px;
+width:100px;
+position:relative;
+}
+
+#ra{
+background-color:white;
+height: 100px;
+width: 100px;
+}
+
+
+tr{
+background-color:yellow;
+}
+
+td{
+background-color:#98bf21;
+height:100px;
+width:100px;
+position:relative;
+}
+
+tr{
+background-color:#98bf21;
+height:100px;
+width:100px;
+position:relative;
+}
+
+#ra{
+background-color:white;
+height: 100px;
+width: 100px;
+}
+
+
+tr{
+background-color:yellow;
+}
+     
