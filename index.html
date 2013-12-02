@@ -1,0 +1,43 @@
+<!-- Memorize Web Game developed by Andre O. Bueno - 11-20-13 
+     contact: andre.obueno@dc.ufscar.br -->
+     
+<!DOCTYPE html>
+<html>
+<head>
+<script src="js/jquery-1.10.2.js"></script>
+
+<script src="js/memorize.js"></script>
+<script type="text/javascript" src="js/jquery.thingbroker.js"></script>
+<link rel="stylesheet" type="text/css" href="style.css">
+
+<script language="javascript">
+  
+
+$(document).ready(function(){
+	setTimeout(function(){
+		$("#big").trigger("click");
+		//window.location = "http://lia.dc.ufscar.br/andre.obueno/memorize/memorize.html";
+	}, 5000);
+
+});
+
+</script>
+
+
+</head>
+ 
+<body>
+<div id="myframe">
+<h1 align="center">MEMORIZE</h1>
+<br />
+<p align="center">
+<a href="memorize.html"><input id="big" type="button" value="Big Screen Page"/></a>
+</p>
+<br />
+<p align="center">
+<a href="memorize_mobubi.html"><input type="button" value="Mobile Device"/></a>
+</p>
+
+</div>
+</body>
+</html>     
