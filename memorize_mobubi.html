@@ -1,0 +1,193 @@
+<!-- Memorize Web Game developed by Andre O. Bueno - 11-20-13 
+     contact: andre.obueno@dc.ufscar.br -->
+     
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<script src="js/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="js/jquery.thingbroker.js"></script>
+<script src="js/memorize.js"></script>
+
+<link rel="stylesheet" type="text/css" href="style.css">
+
+
+<script>
+$(document).ready(function(){
+	/*$("#thingSeqs").thing({listen:false});
+	$("#thingNumBlocks").thing({listen:false});
+	$("#thingResult").thing({listen:false});
+	$("#thingPlayersName").thing({listen:false});
+	$("#thingEndGame").thing({listen:false});*/
+	
+	$("#blocks_div").hide();
+	$("#result_div").hide();
+	$("#correct_div").hide();
+	$("#wrong_div").hide();
+	$("#wait_div").hide();
+	
+	$("#thingNumBlocks").thing({listen:true, debug:true, container:false,
+		eventCallback:function(json){
+		
+			if(playing){
+				cleanSequence(playerMap);
+				$("#correct_div").delay(1000).hide();
+				numBlocksInSequence = json[0].info.nro_blocks;
+				console.log("numblocks received= " + numBlocksInSequence);
+				//console.log("Started game");
+				
+				// fill the array with 0s in all positions. 
+				fill2DArray(playerMap);		
+				
+				$("#wait_div").delay(1000).hide();
+				$("#blocks_div").show();
+				
+				numBlocksClicked = 0;		
+				//numSeconds = 0;
+
+				// adds the click event to each element
+				$("td").unbind("click").click(handleClick);
+			}
+        }
+    });
+	
+	// Receives the result from the big screen and updates the device screen according to the player's result
+	$("#thingResult").thing({listen:true, debug:true, container:false,
+		eventCallback:function(json){
+			var listWinners = new Array;
+			listWinners = json[0].info.listOfWinners;
+			var size = listWinners.length;
+			var isWinner = false;
+
+			for(var i=0; i < size; i++)
+				//if the player did it right, he is a winner!				
+				if(playerName == listWinners[i]){					
+					isWinner = true;
+					$("#result_div").delay(1000).hide();
+					$("#correct_div").show();
+					isWinner = true;
+				}
+				
+			//if the player did it wrong, he is not a winner...
+			if(!isWinner){
+				playing = false;
+				$("#result_div").delay(1000).hide();
+				$("#wrong_div").show();
+			}
+		}				
+    });
+	
+	$("#thingEndGame").thing({listen:true, debug:true, container:false,
+		eventCallback:function(json){
+			console.log("received END_GAME");
+			cleanSequence(playerMap);
+			$("#correct_div").delay(1000).hide();
+			$("#wrong_div").delay(1000).hide();
+			$("#signup_div").show();	
+		}		
+	});
+
+	
+	$("#btnReady").click(function(){
+		playerName = $("#player").val();
+		var player_confirm = $.ThingBroker({debug:true});
+		console.log("sent the name = " + playerName);
+		player_confirm.postEvent("thingPlayersName", {"name": playerName});
+		playing = true;
+		
+		$("#signup_div").delay(1000).hide();
+		$("#wait_div").show();
+
+		/* A listener here waits until all the players are ready, so, someone pushs a button in the Big display starting the game 
+		   for while, let's use the PLAY button for that.*/		
+	});
+	
+	$("#btn_next_lvl").click(function(){
+		cleanSequence(playerMap);
+		$("#correct_div").delay(1000).hide();
+		$("#wait_div").show();
+	});
+	
+});
+	
+</script> 
+</head>
+ 
+<body>
+<div id="myframe">
+
+<!--<div id="content" height="80%" width="80%">-->
+
+<div id="thingSeqs"></div>
+
+<!-- Receives number of blocks in the sequence and starts the game-->
+<div id="thingNumBlocks"></div>
+
+<div id="thingPlayersName"></div>
+<!--Listener listening to the Big waiting for everybody to finish (wait until the level time it's over, then, analyse the results and tell who is right and who is wrong-->
+<div id="thingResult"></div>
+
+<div id="thingEndGame"></div>
+
+	
+	<div id="signup_div">
+	        <h2 align="center">Name:<input type="text" id="player" /></h2>
+		<p align="center"><input type="button" id="btnReady" value="READY" /></p>		
+	</div>
+	
+	<div id="wait_div">
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<h2 align="center">Waiting for other players to start...</h2>	
+	</div>	
+	
+	<div id="blocks_div">
+		<table border="1" style="float:center">
+			<tr>
+				<td id="0x0"></td>
+				<td id="0x1"></td>
+				<td id="0x2"></td>
+			</tr>
+			<tr>
+				<td id="1x0"></td>
+				<td id="1x1"></td>
+				<td id="1x2"></td>
+			</tr>
+			<tr>
+				<td id="2x0"></td>
+				<td id="2x1"></td>
+				<td id="2x2"></td>
+			</tr>
+		</table>
+	</div>
+	
+	<div id="result_div">
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<h2 align="center">Waiting for other players to see the result...</h2>
+	</div>	
+
+	<div id="correct_div">
+		<p align="center">Correct!</p>
+		<p align="center"><img src="images/happy_puppy.jpg" width="300" height="250"/></p>				
+	</div>
+	
+	<div id="wrong_div">
+		<p align="center">Wrong!</p>
+		<p align="center"><img src="images/sad_puppy.jpg" width="300" height="250" /></p>		
+	</div>
+
+</div>
+
+</body>
+</html>
+     
